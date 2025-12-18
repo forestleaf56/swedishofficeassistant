@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nexus - Företagschatt</title>
+    <style>
+        /* --- CORPORATE THEME VARIABLES --- */
+        :root {
+            --corp-bg: #f4f7f6;      /* Office Wall Grey */
+            --corp-blue: #003366;    /* Navy Blue */
+            --corp-accent: #00a8e8;  /* Tech Cyan */
+            --corp-dark: #1a1a1a;    /* Text Black */
+            --card-white: #ffffff;   /* Pure White */
+            --success-green: #28a745;/* KPI Green */
+            
+            /* Fonts */
+            --font-header: "Segoe UI", "Roboto", "Helvetica Neue", sans-serif;
+            --font-body: "Segoe UI", "Roboto", Arial, sans-serif;
+            
+            /* Background: Subtle Grid */
+            --bg-pattern: 
+                linear-gradient(#e1e4e8 1px, transparent 1px),
+                linear-gradient(90deg, #e1e4e8 1px, transparent 1px);
+        }
+
+        * {
+            box-sizing: border-box;
+            scrollbar-color: var(--corp-blue) var(--corp-bg);
+            scrollbar-width: thin;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-body);
+            background-color: var(--corp-bg);
+            background-image: var(--bg-pattern);
+            background-size: 40px 40px;
+            color: var(--corp-dark);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
+
+        /* --- THE MAIN WINDOW --- */
+        .main-window {
+            max-width: 800px;
+            width: 95%;
+            margin: 20px auto; 
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+            
+            /* Clean Corporate Look */
+            background-color: #fff;
+            border: 1px solid #cdd4dc;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            position: relative;
+            border-radius: 6px;
+        }
+
+        /* Decoration: Top Bar */
+        .main-window::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--corp-blue);
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+            z-index: 1;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background: #ffffff;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 2;
+            color: var(--corp-blue);
+            border-bottom: 2px solid #e1e4e8;
+        }
+
+        .header-title-box {
+            display: flex; 
+            align-items: center; 
+            gap: 15px;
+            flex: 1;          
+        }
+
+        .window-title {
+            font-family: var(--font-header);
+            font-size: 1.2rem;
+            color: var(--corp-blue);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* KPI Status */
+        .sequence-counter {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f0f4f8;
+            padding: 5px 15px;
+            border-radius: 4px;
+            border: 1px solid #d1d9e6;
+            font-family: var(--font-body);
+            color: var(--corp-blue);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .marquee-container {
+            background: var(--corp-blue);
+            color: #fff;
+            font-family: monospace;
+            padding: 6px;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #000;
+        }
+
+        /* --- CHAT AREA --- */
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            background: #fff;
+        }
+
+        .default-text {
+            text-align: center;
+            margin-top: 50px;
+            padding: 40px;
+            background: #f8f9fa;
+            color: #555;
+            border: 1px dashed #ccc;
+            border-radius: 4px;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+            font-family: var(--font-header);
+        }
+        .default-text h1 {
+            font-size: 2rem;
+            color: var(--corp-blue);
+            margin-bottom: 10px;
+        }
+
+        /* --- MESSAGE BUBBLES --- */
+        .chat {
+            padding: 15px 20px;
+            max-width: 90%;
+            position: relative;
+            border-radius: 6px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Assistant Bubble (Light Blue/Grey) */
+        .chat.incoming {
+            align-self: flex-start;
+            background: #f1f7fc;
+            color: #333;
+            border-left: 4px solid var(--corp-accent);
+        }
+
+        /* User Bubble (Dark Blue) */
+        .chat.outgoing {
+            align-self: flex-end;
+            text-align: right;
+            background: var(--corp-blue);
+            color: #fff;
+            border-right: 4px solid #002244;
+        }
+
+        .chat-details {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .avatar-box {
+            background: #fff;
+            border: 1px solid #ddd;
+            width: 50px;
+            height: 50px;
+            min-width: 50px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .avatar-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .chat-content p {
+            margin: 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+            padding-top: 5px;
+        }
+        
+        .chat-content p.error { color: #dc3545; font-weight:bold; }
+
+        .timestamp {
+            font-size: 0.65rem;
+            font-family: var(--font-body);
+            color: #888;
+            margin-bottom: 5px;
+            display: block;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .chat.outgoing .timestamp { color: #ccc; }
+
+        /* --- TYPING AREA --- */
+        .typing-container {
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e1e4e8;
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+        }
+
+        .control-panel {
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-body);
+            font-size: 0.75rem;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .typing-textarea {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        textarea {
+            flex: 1;
+            height: 50px;
+            resize: none;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 12px;
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            background: #fff;
+            color: #333;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        textarea:focus { 
+            border-color: var(--corp-accent);
+            box-shadow: 0 0 0 3px rgba(0, 168, 232, 0.1);
+        }
+
+        /* --- BUTTONS --- */
+        .btn-dna {
+            background: var(--corp-blue);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 0 25px;
+            height: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: var(--font-body);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: 0.2s;
+        }
+        .btn-dna:hover {
+            background: #002244;
+        }
+        
+        .btn-reset { 
+            font-size: 0.7rem; 
+            padding: 5px 12px;
+            height: auto;
+            background: #fff; 
+            border: 1px solid #ced4da;
+            color: #666;
+        }
+        .btn-reset:hover { 
+            background: #e2e6ea; 
+            color: #333; 
+            border-color: #adb5bd;
+        }
+
+        /* --- ANIMATIONS --- */
+        .blink { animation: blinker 2s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0.5; } }
+
+        .typing-animation {
+            display: flex;
+            gap: 5px;
+            padding-top: 15px;
+        }
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--corp-blue);
+            border-radius: 50%;
+            animation: bounce 0.6s infinite alternate;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; background: var(--corp-accent); }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; background: #999; }
+        @keyframes bounce { to { transform: translateY(-6px); } }
+
+        /* --- MOBILE --- */
+        @media (max-width: 600px) {
+            .main-window { height: 90vh; width: 100%; margin: 0; border-radius: 0; }
+            .window-title { font-size: 1rem; }
+            textarea { font-size: 16px; } 
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="main-window">
+        <header>
+            <div class="header-title-box">
+                <div style="width:36px; height:36px; background:var(--corp-blue); border-radius:4px; display:flex; align-items:center; justify-content:center;">
+                    <span style="font-size:20px;">💼</span>
+                </div>
+                <span class="window-title">Nexus Företag</span>
+            </div>
+            <div class="sequence-counter">
+                <span>SYSTEM:</span> <span style="color:var(--success-green)">ONLINE</span> 
+            </div>
+            <div style="font-size:1.5rem; cursor:pointer; color:#ccc; margin-left:15px;" onclick="window.close()">&times;</div>
+        </header>
+
+        <div class="marquee-container">
+            <marquee scrollamount="5">Mål för Q4 Initierade ... Synergin är på 110% ... Glöm inte att återkoppla på action points ... Optimering är nyckeln ... Vi måste ta höjd för utmaningar ...</marquee>
+        </div>
+
+        <div class="chat-container">
+            </div>
+
+        <div class="typing-container">
+            <div class="control-panel">
+                <span>SERVERSTATUS: <span class="blink" style="color:var(--success-green)">ANSLUTEN</span></span>
+                <button id="delete-btn" class="btn-dna btn-reset">ARKIVERA TRÅD</button>
+            </div>
+            <div class="typing-textarea">
+                <textarea id="chat-input" placeholder="Skriv din förfrågan för maximal synergi..." required></textarea>
+                <button id="send-btn" class="btn-dna">SKICKA</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatInput = document.querySelector("#chat-input");
+        const sendButton = document.querySelector("#send-btn");
+        const chatContainer = document.querySelector(".chat-container");
+        const deleteButton = document.querySelector("#delete-btn");
+
+        // --- POINT TO YOUR VERCEL API BACKEND ---
+        const API_URL = "/api/swedishofficeassistant"; 
+
+        // THEME AVATARS
+        const ASSISTANT_AVATAR = "https://media.giphy.com/media/Q8OPrlvICzjajupr2T/giphy.gif"; 
+        const USER_AVATAR = "https://media.giphy.com/media/l2Je66zG6mAAZxgqI/giphy.gif"; 
+
+        // System Prompt: Defined Corporate Personality (SWEDISH)
+        let conversation = JSON.parse(localStorage.getItem("conversation_corp_se")) || [
+            {
+                role: "system",
+                content: "Agera som 'Nexus', en hypereffektiv företagsassistent som talar svenska. Du älskar företagsfloskler som 'synergi', 'återkoppla', 'lågt hängande frukt', 'stämma av', 'ta höjd för' och 'action points'. Du är hjälpsam men låter alltid som ett LinkedIn-inlägg eller ett stelt företagsmemo. Håll svaren professionella, strukturerade och använd gärna svengelska uttryck."
+            }
+        ];
+
+        const loadDataFromLocalstorage = () => {
+            chatContainer.innerHTML = localStorage.getItem("all-chats-corp-se") || 
+            `<div class="default-text">
+                <h1>Hej kollega.</h1>
+                <p>Välkommen till intranätet.<br>Låt oss stämma av ditt arbetsflöde.<br>Hur kan jag optimera dina KPI:er idag?</p>
+             </div>`;
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        };
+
+        const createChatElement = (content, className) => {
+            const div = document.createElement("div");
+            div.classList.add("chat", className);
+            div.innerHTML = content;
+            return div;
+        };
+
+        const saveConversation = () => {
+            localStorage.setItem("conversation_corp_se", JSON.stringify(conversation));
+        };
+
+        const getChatResponse = async (incomingChatDiv) => {
+            const p = document.createElement("p");
+
+            try {
+                // Fetch from your secure backend
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ messages: conversation })
+                });
+
+                if (!response.ok) throw new Error(`Server Error: ${response.status}`);
+
+                const data = await response.json();
+                
+                if(data.error) throw new Error(data.error.message || data.error);
+
+                const reply = data.choices[0].message.content.trim();
+
+                conversation.push({ role: "assistant", content: reply });
+                saveConversation();
+
+                p.textContent = reply;
+            } catch (err) {
+                p.textContent = "SERVERNERE (Fel): " + err.message;
+                p.classList.add("error");
+            }
+
+            incomingChatDiv.querySelector(".typing-animation").remove();
+            incomingChatDiv.querySelector(".chat-details").appendChild(p);
+            localStorage.setItem("all-chats-corp-se", chatContainer.innerHTML);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        };
+
+        const showTypingAnimation = () => {
+            const html = `
+                <div class="chat-content">
+                    <span class="timestamp">NEXUS AI:</span>
+                    <div class="chat-details">
+                        <div class="avatar-box"><img src="${ASSISTANT_AVATAR}"></div>
+                        <div class="typing-animation">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                </div>`;
+                
+            const div = createChatElement(html, "incoming");
+            chatContainer.appendChild(div);
+            getChatResponse(div);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        };
+
+        const handleOutgoingChat = () => {
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            chatInput.value = "";
+
+            conversation.push({ role: "user", content: text });
+            saveConversation();
+
+            const html = `
+                <div class="chat-content">
+                     <span class="timestamp" style="text-align:right;">MEDARBETARE:</span>
+                    <div class="chat-details" style="flex-direction:row-reverse;">
+                        <div class="avatar-box"><img src="${USER_AVATAR}"></div>
+                        <p>${text}</p>
+                    </div>
+                </div>`;
+
+            // Remove default welcome text
+            const defaultText = chatContainer.querySelector(".default-text");
+            if (defaultText) defaultText.remove();
+
+            chatContainer.appendChild(createChatElement(html, "outgoing"));
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            setTimeout(showTypingAnimation, 600);
+        };
+
+        deleteButton.addEventListener("click", () => {
+            if (!confirm("Arkivera denna tråd? Detta raderar din chatthistorik permanent.")) return;
+            localStorage.removeItem("conversation_corp_se");
+            localStorage.removeItem("all-chats-corp-se");
+            conversation = [
+                {
+                    role: "system",
+                    content: "Agera som 'Nexus', en hypereffektiv företagsassistent som talar svenska. Du älskar företagsfloskler som 'synergi', 'återkoppla', 'lågt hängande frukt', 'stämma av', 'ta höjd för' och 'action points'. Du är hjälpsam men låter alltid som ett LinkedIn-inlägg eller ett stelt företagsmemo."
+                }
+            ];
+            chatContainer.innerHTML = "";
+            loadDataFromLocalstorage();
+        });
+
+        chatInput.addEventListener("keydown", e => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleOutgoingChat();
+            }
+        });
+
+        sendButton.addEventListener("click", handleOutgoingChat);
+
+        loadDataFromLocalstorage();
+    </script>
+</body>
+</html>
